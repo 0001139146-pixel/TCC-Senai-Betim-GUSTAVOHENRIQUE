@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaneWeb - Saneamento e Sustentabilidade</title>
+    <link rel="stylesheet" href="tcc.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="login-screen">
+            <h1 style="margin-bottom: 5px;">🌱 SaneWeb</h1>
+            <p style="text-align: center; color: #546e7a; font-weight: 500; margin-top: 0;">Portal de Saneamento Básico & Preservação Ambiental</p>
+            
+            <div class="form-group">
+                <label for="login-uf">📍 Selecione seu Estado (UF):</label>
+                <select id="login-uf" onchange="loadCities(this.value)">
+                    <option value="">-- Escolha o Estado --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="login-city">🏙️ Selecione sua Cidade:</label>
+                <input type="text" id="search-city-input" placeholder="Digite para filtrar a cidade..." oninput="filterCities()" disabled>
+                <select id="login-city" style="margin-top: 8px;" disabled>
+                    <option value="">-- Selecione primeiro o Estado --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="login-user">👤 Usuário:</label>
+                <input type="text" id="login-user" placeholder="Digite seu usuário">
+            </div>
+
+            <div class="form-group">
+                <label for="login-password">🔒 Senha:</label>
+                <input type="password" id="login-password" placeholder="Digite sua senha">
+            </div>
+
+            <button onclick="handleLogin()">Entrar no Portal</button>
+            <button class="btn-secondary" onclick="showRegisterScreen()">Criar Nova Conta</button>
+        </div>
+
+        <div id="register-screen" class="hidden">
+            <h2>Cadastre-se no SaneWeb</h2>
+            <p style="text-align: center; color: #666; margin-top: -10px;">Junte-se à comunidade para monitorar o saneamento da sua região.</p>
+            
+            <div class="form-group">
+                <label for="reg-user">👤 Escolha um Nome de Usuário:</label>
+                <input type="text" id="reg-user" placeholder="Ex: joao_silva">
+            </div>
+
+            <div class="form-group">
+                <label for="reg-password">🔒 Senha (Mínimo 5 caracteres):</label>
+                <input type="password" id="reg-password" placeholder="Digite sua senha segura">
+            </div>
+
+            <button onclick="handleRegister()">Concluir Cadastro 🍃</button>
+            <button class="btn-secondary" onclick="showLoginScreen()">Voltar ao Login</button>
+        </div>
+
+        <div id="main-app" class="hidden">
+            <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 12px; margin-bottom: 20px;">
+                <h2 style="margin: 0;">🌿 SaneWeb</h2>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span id="user-display-info" style="font-weight: bold; color: var(--secondary-color);"></span>
+                    <button onclick="handleLogout()" style="width: auto; margin: 0; padding: 8px 16px; font-size: 14px; background-color: #c62828;">Sair</button>
+                </div>
+            </header>
+
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-debates', this)">💬 Fórum e Debates</button>
+                <button class="tab-btn" onclick="switchTab('tab-comunidade', this)">📊 Dados Locais</button>
+                <button class="tab-btn" onclick="switchTab('tab-tratamento', this)">🔬 Suporte Técnico</button>
+                <button class="tab-btn" onclick="switchTab('tab-sugestoes', this)">💡 Ideias Ambientais</button>
+            </div>
+
+            <div id="tab-debates" class="tab-content">
+                <h3>💬 Discussões em <span id="chat-city-title"></span></h3>
+                
+                <div class="search-bar-container">
+                    <input type="text" id="search-chat" oninput="filterChat()" placeholder="🔍 Filtrar mensagens na cidade...">
+                </div>
+
+                <div class="chat-box" id="chat-messages"></div>
+                
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Compartilhe um problema ou atualização sobre sua rua...">
+                    <button onclick="sendChatMessage()">Enviar</button>
+                </div>
+            </div>
+
+            <div id="tab-comunidade" class="tab-content hidden">
+                <h3>📊 Indicadores de Desenvolvimento Sustentável (<span id="stats-city-title"></span>)</h3>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>💧 Potabilidade da Água</h4>
+                        <p id="label-agua" style="font-size: 26px; font-weight: bold; color: #006064; margin: 5px 0;">Não informado</p>
+                        <small>Padrão ideal atingido na rede</small>
+                        <div class="progress-container"><div id="bar-agua" class="progress-bar blue" style="width: 0%"></div></div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>🌱 Esgoto Tratado</h4>
+                        <p id="label-esgoto" style="font-size: 26px; font-weight: bold; color: #1b5e20; margin: 5px 0;">Não informado</p>
+                        <small>Cobertura geral do município</small>
+                        <div class="progress-container"><div id="bar-esgoto" class="progress-bar" style="width: 0%"></div></div>
+                    </div>
+                </div>
+
+                <div class="notice-board">
+                    <h4>⚠️ Informativo da Estação de Tratamento</h4>
+                    <p id="text-informativo">Nenhum informativo registrado para esta cidade ainda.</p>
+                </div>
+
+                <div id="admin-data-box" class="update-data-box" style="display: none; margin-top: 30px; padding: 20px; background: #fafafa; border: 2px dashed var(--primary-color); border-radius: 12px;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 15px; text-align: left;">⚙️ Área do Gestor: Atualizar Dados da Cidade</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="input-agua" style="font-size: 13px;">💧 Potabilidade da Água (%):</label>
+                            <input type="number" id="input-agua" min="0" max="100" placeholder="Ex: 94">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-esgoto" style="font-size: 13px;">🌱 Esgoto Tratado (%):</label>
+                            <input type="number" id="input-esgoto" min="0" max="100" placeholder="Ex: 72">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-informativo" style="font-size: 13px;">⚠️ Texto do Informativo Técnico:</label>
+                        <input type="text" id="input-informativo" placeholder="Ex: Limpeza programada nos filtros...">
+                    </div>
+                    <button onclick="saveLocalData()" style="margin-top: 5px;">Salvar Indicadores Locais 📊</button>
+                </div>
+            </div>
+
+            <div id="tab-tratamento" class="tab-content hidden">
+                <h3>🔬 Suporte com Engenharia Sanitarista</h3>
+                
+                <div id="user-support-section" style="display: none;">
+                    <p>Notou irregularidades como água turva, mau cheiro ou descarte irregular? Relate abaixo.</p>
+                    <div class="form-group">
+                        <textarea id="prob-desc" rows="3" style="width:100%; border-radius:8px; padding:12px; border:2px solid #c8e6c9; box-sizing:border-box; font-family: inherit; background-color: #fafafa;" placeholder="Descreva a situação ambiental observada..."></textarea>
+                    </div>
+                    <button onclick="submitSupportQuestion()">Enviar Diagnóstico para Análise</button>
+                </div>
+
+                <div id="support-tickets-container" style="margin-top: 25px;">
+                    <h4 id="support-list-title">Meus Relatos:</h4>
+                    <div id="support-tickets-list" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+            </div>
+
+            <div id="tab-sugestoes" class="tab-content hidden">
+                <h3>💡 Banco de Ideias e Eco-Sugestões</h3>
+                
+                <div class="search-bar-container">
+                    <input type="text" id="search-ideas" oninput="filterIdeas()" placeholder="🔍 Pesquisar nas ideias ambientais...">
+                </div>
+
+                <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="margin-top: 0;">Envie sua proposta</h4>
+                    <div class="form-group">
+                        <input type="text" id="sug-title" placeholder="Título da Sugestão (Ex: Captação de Água)">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="sug-text" placeholder="Explique como essa ideia pode ajudar o saneamento...">
+                    </div>
+                    <button onclick="submitSuggestion()" style="margin-top: 0;">Publicar Minha Eco-Ideia 🍃</button>
+                </div>
+                
+                <h4>Ideias Compartilhadas:</h4>
+                <ul class="item-list" id="suggestions-list"></ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="tcc.js"></script>
+</body>
+</html>
